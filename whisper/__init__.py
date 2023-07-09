@@ -124,10 +124,14 @@ def load_model(
     if device is None:
         if torch.cuda.is_available():
             device = "cuda"
-        elif hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
-            device = "mps"
         else:
-            device = "cpu"
+            try:
+                if torch.backends.mps.is_available():
+                    device = "mps"
+                else:
+                    device = "cpu"
+            except AttributeError:
+                device = "cpu"
     if download_root is None:
         default = os.path.join(os.path.expanduser("~"), ".cache")
         download_root = os.path.join(os.getenv("XDG_CACHE_HOME", default), "whisper")
